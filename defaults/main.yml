@@ -3,7 +3,7 @@
 sentry_enabled: yes                                       # Enable the role
 sentry_cron: no
 sentry_remove: no                                         # Uninstall the role
-sentry_version: 8.5.1
+sentry_version: 8.7.0
 sentry_home: /usr/lib/sentry                              # Deploy sentry to the folder
 sentry_user: sentry                                       # Run as user
 sentry_hostname: "{{inventory_hostname}}"
@@ -65,4 +65,3 @@ sentry_nginx_body_size: 150k
 # The following parameters are for toggling dependencies
 redis_enabled: yes
 nginx_enabled: yes
-python_enabled: yes

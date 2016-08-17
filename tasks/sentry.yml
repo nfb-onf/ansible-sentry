@@ -18,23 +18,27 @@
 - name: Check existince of Sentry virtualenv
   stat: path={{sentry_home}}/env
   register: sentry_has_virtualenv
-  sudo: yes
-  sudo_user: "{{sentry_user}}"
+  become: yes
+  become_user: "{{sentry_user}}"
+
+- name: Install virtualenv
+  apt: pkg=python-virtualenv
+  when: sentry_has_virtualenv.stat.exists == False and ansible_os_family == 'Debian'
 
 - name: Create virtualenv for Sentry using chosen Python
-  when: sentry_has_virtualenv.stat.exists == False
   shell: virtualenv --python={{sentry_python}} {{sentry_home}}/env
-  sudo: yes
-  sudo_user: "{{sentry_user}}"
+  become: yes
+  become_user: "{{sentry_user}}"
+  when: sentry_has_virtualenv.stat.exists == False
 
 - name: Install Sentry
-  pip: name=sentry executable={{sentry_home}}/env/bin/pip version={{sentry_version}}  virtualenv="{{sentry_home}}"/env
-  sudo: yes
-  sudo_user: "{{sentry_user}}"
+  pip: name=sentry version={{sentry_version}} virtualenv="{{sentry_home}}/env"
+  become: yes
+  become_user: "{{sentry_user}}"
   notify: [sentry restart]
 
 - name: Install extensions
-  pip: name={{item}} executable={{sentry_home}}/env/bin/pip
+  pip: name={{item}} virtualenv="{{sentry_home}}/env"
   with_items: sentry_extensions
   notify: [sentry restart]
 
@@ -56,8 +60,8 @@
   shell: "{{sentry_home}}/sentry upgrade --noinput"
   register: sentry_upgrade
   changed_when: sentry_upgrade.rc
-  sudo: yes
-  sudo_user: "{{sentry_user}}"
+  become: yes
+  become_user: "{{sentry_user}}"
 
 - name: Clean Sentry Database
   cron: job="{{sentry_home}}/sentry cleanup --days=30" minute=0 hour=0 user={{sentry_user}}
@@ -67,8 +71,8 @@
   shell: "{{sentry_home}}/sentry django collectstatic --noinput"
   register: sentry_collected
   changed_when: not sentry_collected.stderr.startswith('\n0 static files copied')
-  sudo: yes
-  sudo_user: "{{sentry_user}}"
+  become: yes
+  become_user: "{{sentry_user}}"
 
 - name: Create nginx public key
   copy: content="{{ sentry_nginx_public_key }}" dest="{{ sentry_ssl_certificate }}"
