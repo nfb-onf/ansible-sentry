@@ -7,13 +7,13 @@ limit_req_status 429;
 
 server {
 
-    listen {{ sentry_port|default(80) }};
+    listen {{sentry_port}};
     server_name {{sentry_hostname}};
 
     {% if sentry_ssl_certificate %}
     listen 443 ssl;
-    ssl_certificate {{ sentry_ssl_certificate }};
-    ssl_certificate_key {{ sentry_ssl_certificate_key }};
+    ssl_certificate {{sentry_ssl_certificate}};
+    ssl_certificate_key {{sentry_ssl_certificate_key}};
 
     # https://wiki.mozilla.org/Security/Server_Side_TLS
     # Diffie-Hellman parameter for DHE ciphersuites, recommended 2048 bits
@@ -31,7 +31,7 @@ server {
     proxy_set_header   Host                 $http_host;
     proxy_set_header   X-Real-IP            $remote_addr;
     proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;
-    proxy_set_header   X-Forwarded-Proto    $scheme;
+    proxy_set_header   X-Forwarded-Proto    {{sentry_nginx_scheme}};
     proxy_redirect     off;
 
     keepalive_timeout 0;
