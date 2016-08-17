@@ -5,8 +5,6 @@ from sentry.conf.server import *
 import os.path
 
 CONF_ROOT = os.path.dirname(__file__)
-SECRET_KEY = '{{sentry_secret_key}}'
-SENTRY_URL_PREFIX = '{{sentry_url_prefix}}'
 
 DATABASES = {
     'default': {
@@ -16,6 +14,8 @@ DATABASES = {
         'PASSWORD': '{{sentry_db_password}}',
         'HOST': '{{sentry_db_host}}',
         'PORT': '{{sentry_db_port}}',
+        'AUTOCOMMIT': True,
+        'ATOMIC_REQUESTS': False,
     }
 }
 
@@ -37,22 +37,7 @@ SENTRY_SINGLE_ORGANIZATION = True
 {% else %}
 SENTRY_SINGLE_ORGANIZATION = False
 {% endif %}
-
-#########
-# Redis #
-#########
-
-# Generic Redis configuration used as defaults for various things including:
-# Buffers, Quotas, TSDB
-
-SENTRY_REDIS_OPTIONS = {
-    'hosts': {
-        0: {
-            'host': '{{sentry_redis_host}}',
-            'port': {{sentry_redis_port}},
-        }
-    }
-}
+DEBUG = False
 
 #########
 # Cache #
@@ -122,7 +107,7 @@ SENTRY_DIGESTS = 'sentry.digests.backends.redis.RedisBackend'
 ################
 
 # Any Django storage backend is compatible with Sentry. For more solutions see
-# the django-storages package: https://django-storages.readthedocs.org/en/latest/
+# the django-storages package: https://django-storages.readthedocs.io/en/latest/
 
 SENTRY_FILESTORE = '{{sentry_filestore}}'
 SENTRY_FILESTORE_OPTIONS = {{sentry_filestore_options|to_nice_json}}
@@ -137,38 +122,13 @@ SENTRY_FILESTORE_OPTIONS = {{sentry_filestore_options|to_nice_json}}
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
 
-# If you're not hosting at the root of your web server, and not using uWSGI,
+# If you're not hosting at the root of your web server,
 # you need to uncomment and set it to the path where Sentry is hosted.
 # FORCE_SCRIPT_NAME = '/sentry'
 
 SENTRY_WEB_HOST = '{{sentry_web_host}}'
 SENTRY_WEB_PORT = {{sentry_web_port}}
 SENTRY_WEB_OPTIONS = {{sentry_web_options|to_nice_json}}
-
-###############
-# Mail Server #
-###############
-
-# For more information check Django's documentation:
-# https://docs.djangoproject.com/en/1.6/topics/email/
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-EMAIL_HOST = '{{sentry_email_host}}'
-EMAIL_HOST_PASSWORD = '{{sentry_email_password}}'
-EMAIL_HOST_USER = '{{sentry_email_user}}'
-EMAIL_PORT = {{sentry_email_port}}
-EMAIL_USE_TLS = {{sentry_email_use_tls}}
-EMAIL_USE_SSL = {{sentry_email_use_ssl}}
-
-# The email address to send on behalf of
-SERVER_EMAIL = '{{sentry_server_email}}'
-
-# If you're using mailgun for inbound mail, set your API key and configure a
-# route to forward to /api/hooks/mailgun/inbound/
-{% if mailgun_api_key is defined %}
-MAILGUN_API_KEY = '{{mailgun_api_key}}'
-{% endif %}
 
 ALLOWED_HOSTS = {{sentry_allowed_hosts}}
 

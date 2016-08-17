@@ -9,6 +9,9 @@
 - name: Ensure sentry static dir exists
   file: state=directory path={{sentry_home}}/_static owner={{sentry_user}}
 
+- name: Ensure sentry conf dir exists
+  file: state=directory path={{sentry_home}}/conf owner={{sentry_user}}
+
 - name: Ensure sentry logfile dir exists
   file: state=directory path={{sentry_logfile_dir}} owner={{sentry_user}} recurse=yes
   when: sentry_logfile_dir != ""
@@ -42,12 +45,12 @@
   with_items: sentry_extensions
   notify: [sentry restart]
 
-- name: Prepare Sentry
-  template: src=sentry.j2 dest={{sentry_home}}/sentry owner={{sentry_user}} mode=0755
+- name: Configure Sentry pt.1
+  template: src=config.yml.j2 dest={{sentry_home}}/conf/config.yml owner={{sentry_user}}
+  notify: [sentry restart]
 
-- name: Configure Sentry
-  template: src=config.py.j2 dest={{sentry_home}}/config.py owner={{sentry_user}}
-  register: config
+- name: Configure Sentry pt.2
+  template: src=sentry.conf.py.j2 dest={{sentry_home}}/conf/sentry.conf.py owner={{sentry_user}}
   notify: [sentry restart]
 
 - name: Configure Supervisor
@@ -57,18 +60,18 @@
   file: state=directory path={{sentry_home}} owner={{sentry_user}} recurse=yes
 
 - name: Upgrade sentry
-  shell: "{{sentry_home}}/sentry upgrade --noinput"
+  shell: "SENTRY_CONF={{sentry_home}}/conf {{sentry_home}}/env/bin/sentry upgrade --noinput"
   register: sentry_upgrade
   changed_when: sentry_upgrade.rc
   become: yes
   become_user: "{{sentry_user}}"
 
 - name: Clean Sentry Database
-  cron: job="{{sentry_home}}/sentry cleanup --days=30" minute=0 hour=0 user={{sentry_user}}
+  cron: job="SENTRY_CONF={{sentry_home}}/conf {{sentry_home}}/env/bin/sentry cleanup --days=30" minute=0 hour=0 user={{sentry_user}}
   when: sentry_cron
 
 - name: Collect sentry static files
-  shell: "{{sentry_home}}/sentry django collectstatic --noinput"
+  shell: "SENTRY_CONF={{sentry_home}}/conf {{sentry_home}}/env/bin/sentry django collectstatic --noinput"
   register: sentry_collected
   changed_when: not sentry_collected.stderr.startswith('\n0 static files copied')
   become: yes
