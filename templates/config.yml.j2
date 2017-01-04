@@ -44,3 +44,14 @@ redis.clusters:
       0:
         host: {{sentry_redis_host}}
         port: {{sentry_redis_port}}
+
+
+################
+# File storage #
+################
+
+# Any Django storage backend is compatible with Sentry. For more solutions see
+# the django-storages package: https://django-storages.readthedocs.io/en/latest/
+
+filestore.backend: '{{sentry_filestore}}'
+filestore.options: {{sentry_filestore_options|to_nice_json}}

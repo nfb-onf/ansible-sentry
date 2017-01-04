@@ -42,7 +42,7 @@
 
 - name: Install extensions
   pip: name={{item}} virtualenv="{{sentry_home}}/env"
-  with_items: sentry_extensions
+  with_items: "{{sentry_extensions}}"
   notify: [sentry restart]
 
 - name: Configure Sentry pt.1
