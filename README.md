@@ -7,7 +7,6 @@ Ansible role which install and setup [Sentry](https://getsentry.com) 8.
 
 - Stouts.nginx
 - Stouts.python
-- Stouts.supervisor
 - ANXS.postgresql
 - DavidWittman.redis
 
@@ -20,7 +19,7 @@ The role variables and default values.
 sentry_enabled: yes                                       # Enable the role
 sentry_cron: no
 sentry_remove: no                                         # Uninstall the role
-sentry_version: 8.0.2
+sentry_version: 8.15.0
 sentry_home: /usr/lib/sentry                              # Deploy sentry to the folder
 sentry_user: sentry                                       # Run as user
 sentry_hostname: "{{inventory_hostname}}"
@@ -35,6 +34,7 @@ sentry_python: python2.7                                  # In the case of multi
 
 sentry_ssl_certificate:                                   # SSL certificate file - also turns on HTTPS on Nginx
 sentry_ssl_certificate_key:                               # Key file for SSL cert
+sentry_ssl_force: False                                   # enable HSTS and redirect to https version
 
 sentry_config_additional: []                              # List of additional options
 
@@ -72,16 +72,13 @@ sentry_filestore_options:
 sentry_allowed_hosts: ['*']
 
 # Logging
+sentry_logfile_dir:
 sentry_access_log: /var/log/sentry-access.log
 sentry_error_log: /var/log/sentry-error.log
 
+sentry_nginx_scheme: "$scheme"
 sentry_nginx_timeout: 15s
 sentry_nginx_body_size: 150k
-
-# The following parameters are for toggling dependencies
-redis_enabled: yes
-nginx_enabled: yes
-python_enabled: yes
 ```
 
 #### Usage
