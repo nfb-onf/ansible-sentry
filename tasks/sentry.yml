@@ -34,6 +34,10 @@
   become_user: "{{sentry_user}}"
   when: sentry_has_virtualenv.stat.exists == False
 
+- name: Install redis
+  pip: name=redis version=2.10.5 virtualenv="{{sentry_home}}/env"
+  become: yes
+
 - name: Install Sentry
   pip: name=sentry version={{sentry_version}} virtualenv="{{sentry_home}}/env"
   become: yes
